@@ -6,7 +6,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import warnings
 import os
 import logging
+import torch
 # from concurrent.futures import ThreadPoolExecutor
+
 
 # Suppress transformers logging
 logging.getLogger("transformers").setLevel(logging.ERROR)
@@ -62,8 +64,9 @@ def analyze_vader_parallel(text):
 def analyze_roberta_parallel(text):
     if sia_roberta and roberta_tokenizer:
         tokens = roberta_tokenizer(text, return_tensors='pt')
-        output = sia_roberta(**tokens)
-        scores = output.logits.softmax(dim=1).detach().numpy()[0]
+        with torch.no_grad():
+            output = sia_roberta(**tokens)
+        scores = output.logits.softmax(dim=1).numpy()[0]
         return scores
     return None
 
@@ -116,8 +119,9 @@ if st.button("Analyze Sentiment"):
         if "RoBERTa" in models_to_use and sia_roberta:
             if roberta_tokenizer and sia_roberta:
                 tokens = roberta_tokenizer(text_input, return_tensors='pt')
-                output = sia_roberta(**tokens)
-                scores = output.logits.softmax(dim=1).detach().numpy()[0]
+                with torch.no_grad():
+                    output = sia_roberta(**tokens)
+                scores = output.logits.softmax(dim=1).numpy()[0]
                 # scores = roberta_future.result()
                 roberta_sentiment = ["Negative 😡️", "Neutral 😐️", "Positive 😊️"][scores.argmax()]
                 col2.write("### RoBERTa Sentiment Scores")
