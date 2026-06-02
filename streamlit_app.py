@@ -55,7 +55,8 @@ roberta_tokenizer, sia_roberta = reberta_data if reberta_data else (None, None)
 
 # Taking Text Input
 st.subheader("Enter Review Text")
-text_input = st.text_area("Type your review text here:", height=120)
+placeholder = "Type your review text here..."
+text_input = st.text_area("Input Text", placeholder=placeholder, height=120)
 
 def analyze_vader_parallel(text):
     if sia_vader:
